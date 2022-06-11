@@ -85,6 +85,7 @@
     qt6.qtbase
     git
     lazygit
+    proxychains-ng
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -120,6 +121,17 @@
   system.stateVersion = "unstable"; # Did you read the comment?
   nix.settings.substituters = ["https://mirrors.ustc.edu.cn/nix-channels/store"];
 
+  programs.proxychains = {
+  enable = true;
+  quietMode = true;
+  proxies = { ss5 =
+  { type = "socks5";
+    host = "127.0.0.1";
+    port = 1089;
+    enable = true;
+  };
+};
+};
   programs.zsh = {
   enable = true;
   shellAliases = {
