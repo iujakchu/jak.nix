@@ -1,15 +1,38 @@
 # Edit this configuration file to define what should be installed on
 # your system.  Help is available in the configuration.nix(5) man page
 # and in the NixOS manual (accessible by running ‘nixos-help’).
-
-{ config, pkgs, ... }:
-
 {
-  imports =
-    [ # Include the results of the hardware scan.
-      ./hardware-configuration.nix
+  config,
+  pkgs,
+  ...
+}: {
+  nix = {
+    package = pkgs.nixFlakes;
+    extraOptions = ''
+      experimental-features = nix-command flakes
+    '';
+  };
+  imports = [
+    # Include the results of the hardware scan.
+    ./hardware-configuration.nix
+    <home-manager/nixos>
+  ];
+  fonts = {
+    enableDefaultFonts = true;
+    fonts = with pkgs; [
+      noto-fonts
+      noto-fonts-cjk
+      noto-fonts-emoji
+      fira-code
     ];
-
+    fontconfig = {
+      defaultFonts = {
+        serif = ["Fira Code" "Noto Color Emoji"];
+        sansSerif = ["Noto Sans Mono CJK HK" "Noto Color Emoji"];
+        monospace = ["Fira Code" "Noto Color Emoji"];
+      };
+    };
+  };
   # Use the systemd-boot EFI boot loader.
   boot.loader.systemd-boot.enable = true;
   boot.loader.efi.canTouchEfiVariables = true;
@@ -17,7 +40,7 @@
   networking.hostName = "art"; # Define your hostname.
   # Pick only one of the below networking options.
   # networking.wireless.enable = true;  # Enables wireless support via wpa_supplicant.
-  networking.networkmanager.enable = true;  # Easiest to use and most distros use this by default.
+  networking.networkmanager.enable = true; # Easiest to use and most distros use this by default.
 
   # Set your time zone.
   time.timeZone = "Asia/Shanghai";
@@ -37,7 +60,6 @@
   # Enable the X11 windowing system.
   services.xserver.enable = true;
   services.xserver.desktopManager.plasma5.enable = true;
-  
 
   # Configure keymap in X11
   services.xserver.layout = "us";
@@ -54,18 +76,16 @@
   services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
-  users.users.yann = {
-    isNormalUser = true;
-    extraGroups = [ "wheel" ]; # Enable ‘sudo’ for the user.
-  };
   environment.variables.EDITOR = "nvim";
+  environment.pathsToLink = ["/share/zsh"];
+
   nixpkgs.overlays = [
-  	(self: super: {
-		neovim = super.neovim.override {
-			viAlias = true;
-			vimAlias = true;
-		};
-	})
+    (self: super: {
+      neovim = super.neovim.override {
+        viAlias = true;
+        vimAlias = true;
+      };
+    })
   ];
   # List packages installed in system profile. To search, run:
   # $ nix search wget
@@ -85,7 +105,20 @@
     qt6.qtbase
     git
     lazygit
-    proxychains-ng
+    proxychains
+    zoxide
+    starship
+    rustup
+    gcc
+    clang_14
+    sumneko-lua-language-server
+    pyright
+    rust-analyzer
+    deno
+    alejandra
+    cmake
+    gnumake
+    zsh
   ];
 
   # Some programs need SUID wrappers, can be configured further or are
@@ -120,29 +153,52 @@
   # (e.g. man configuration.nix or on https://nixos.org/nixos/options.html).
   system.stateVersion = "unstable"; # Did you read the comment?
   nix.settings.substituters = ["https://mirrors.ustc.edu.cn/nix-channels/store"];
-
   programs.proxychains = {
-  enable = true;
-  quietMode = true;
-  proxies = { ss5 =
-  { type = "socks5";
-    host = "127.0.0.1";
-    port = 1089;
     enable = true;
+    quietMode = true;
+    proxies = {
+      ss5 = {
+        type = "socks5";
+        host = "127.0.0.1";
+        port = 1089;
+        enable = true;
+      };
+    };
   };
-};
-};
-  programs.zsh = {
-  enable = true;
-  shellAliases = {
-    ll = "ls -l";
-    update = "sudo nixos-rebuild switch";
+  users.users.yann.extraGroups = ["wheel" "sudo"];
+  users.users.yann.isNormalUser = true;
+  home-manager.users.yann = {
+    programs.zsh = {
+      enable = true;
+      enableSyntaxHighlighting = true;
+      enableAutosuggestions = true;
+      shellAliases = {
+        ll = "ls -l";
+        pc = "proxychains4 -f /etc/proxychains.conf";
+        asd = "pc lazygit";
+        clone = "pc git clone";
+        update = "sudo nixos-rebuild switch";
+      };
+      oh-my-zsh = {
+        enable = true;
+        plugins = ["git" "vi-mode"];
+        theme = "robbyrussell";
+      };
+    };
+    programs.starship.enable = true;
+    programs.starship.enableZshIntegration = true;
+    programs.zoxide.enable = true;
+    programs.zoxide.enableZshIntegration = true;
   };
-  ohMyZsh = {
-    enable = true;
-    plugins = [ "git" "vi-mode" ];
-    theme = "robbyrussell";
-  };
-};
+  security.sudo.extraRules = [
+    {
+      users = ["yann"];
+      commands = [
+        {
+          command = "ALL";
+          options = ["NOPASSWD"];
+        }
+      ];
+    }
+  ];
 }
-
