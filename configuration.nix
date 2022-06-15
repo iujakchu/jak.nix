@@ -12,24 +12,26 @@
       experimental-features = nix-command flakes
     '';
   };
+  time.hardwareClockInLocalTime = true;
   imports = [
     # Include the results of the hardware scan.
     ./hardware-configuration.nix
     <home-manager/nixos>
   ];
+  i18n.inputMethod.enabled = "fcitx";
+  i18n.inputMethod.fcitx.engines = with pkgs.fcitx-engines; [ rime ];
   fonts = {
     enableDefaultFonts = true;
     fonts = with pkgs; [
-      noto-fonts
       noto-fonts-cjk
       noto-fonts-emoji
-      fira-code
+      (nerdfonts.override {fonts = ["FiraCode"];})
     ];
     fontconfig = {
       defaultFonts = {
-        serif = ["Fira Code" "Noto Color Emoji"];
-        sansSerif = ["Noto Sans Mono CJK HK" "Noto Color Emoji"];
-        monospace = ["Fira Code" "Noto Color Emoji"];
+        serif = ["FiraCode"];
+        sansSerif = ["FiraCode"];
+        monospace = ["FiraCode"];
       };
     };
   };
@@ -73,7 +75,7 @@
   hardware.pulseaudio.enable = true;
 
   # Enable touchpad support (enabled default in most desktopManager).
-  services.xserver.libinput.enable = true;
+  # services.xserver.libinput.enable = true;
 
   # Define a user account. Don't forget to set a password with ‘passwd’.
   environment.variables.EDITOR = "nvim";
@@ -103,6 +105,8 @@
     fd
     python310
     qt6.qtbase
+    qt6.qttools
+    qt6.qtdoc
     git
     lazygit
     proxychains
@@ -120,7 +124,17 @@
     gnumake
     zsh
     stylua
+    netease-cloud-music-gtk
+    virt-manager
+    htop
+    greetd.greetd
+    greetd.tuigreet
+    rnix-lsp
+    cmake-language-server
+    clash
   ];
+  virtualisation.libvirtd.enable = true;
+  programs.dconf.enable = true;
 
   # Some programs need SUID wrappers, can be configured further or are
   # started in user sessions.
@@ -169,16 +183,29 @@
   users.users.yann.extraGroups = ["wheel" "sudo"];
   users.users.yann.isNormalUser = true;
   home-manager.users.yann = {
+    programs.alacritty = {
+      enable = true;
+      settings = {
+        shell = {
+          program = config.users.users.yann.home + "/.nix-profile/bin/zsh";
+        };
+        window = {
+          opacity = 0.8;
+        };
+      };
+    };
     programs.zsh = {
       enable = true;
       enableSyntaxHighlighting = true;
       enableAutosuggestions = true;
       shellAliases = {
         ll = "ls -l";
+        update = "sudo nixos-rebuild switch";
+      };
+      shellGlobalAliases = {
         pc = "proxychains4 -f /etc/proxychains.conf";
         asd = "pc lazygit";
         clone = "pc git clone";
-        update = "sudo nixos-rebuild switch";
       };
       oh-my-zsh = {
         enable = true;
@@ -190,6 +217,14 @@
     programs.starship.enableZshIntegration = true;
     programs.zoxide.enable = true;
     programs.zoxide.enableZshIntegration = true;
+    programs.git = {
+      enable = true;
+      userEmail = "iujakchu@163.com";
+      userName = "iujakchu";
+      extraConfig = {
+        credential.helper = "store";
+      };
+    };
   };
   security.sudo.extraRules = [
     {
