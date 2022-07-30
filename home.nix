@@ -3,6 +3,11 @@
   home.packages = with pkgs; [
   ];
   programs = {
+    zathura = {
+      enable = true;
+      options = {
+      };
+    };
     neovim = {
       enable = true;
       viAlias = true;
