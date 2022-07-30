@@ -105,6 +105,8 @@
     greetd.greetd
     greetd.tuigreet
     rnix-lsp
+    sumneko-lua-language-server
+    rust-analyzer
   ];
   virtualisation.libvirtd.enable = true;
   programs.dconf.enable = true;
@@ -121,6 +123,15 @@
 
   # Enable the OpenSSH daemon.
   services.openssh.enable = true;
+  services.greetd = {
+    enable = true;
+    settings = {
+      default_session = {
+        command = "${pkgs.greetd.tuigreet}/bin/tuigreet --time --cmd Hyprland";
+        user = "yann";
+      };
+    };
+  };
 
   # Open ports in the firewall.
   # networking.firewall.allowedTCPPorts = [ ... ];

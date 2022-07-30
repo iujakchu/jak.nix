@@ -49,6 +49,7 @@
       enable = true;
       userName = "iujakchu";
       userEmail = "iujakchu@163.com";
+      extraConfig = {credential.helper = "store";};
     };
   };
 }
