@@ -1,18 +1,24 @@
 {pkgs, ...}: {
   home.stateVersion = "22.05";
   home.packages = with pkgs; [
+    neovim-nightly
+    onefetch
+    zathura
+    alacritty
   ];
+  xdg.configFile = {
+    "nvim" = {
+      source = ./xdg/nvim;
+      recursive = true;
+    };
+    "hypr" = {
+      source = ./xdg/hypr;
+    };
+    "alacritty" = {
+      source = ./xdg/alacritty;
+    };
+  };
   programs = {
-    zathura = {
-      enable = true;
-      options = {
-      };
-    };
-    neovim = {
-      enable = true;
-      viAlias = true;
-      package = pkgs.neovim-nightly;
-    };
     zsh = {
       enable = true;
       enableAutosuggestions = true;
@@ -23,10 +29,12 @@
         plugins = ["git" "sudo" "vi-mode"];
       };
       shellAliases = {
+        ls = "exa --icons";
+        vi = "nvim";
         ll = "exa -l --icons";
-        la = "exa -al --icons";
+        l = "exa -al --icons";
         asd = "lazygit";
-        update = "sudo nixos-rebuild --flake . switch ";
+        update = "sudo nixos-rebuild --flake . switch --impure";
       };
     };
     starship = {

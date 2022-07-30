@@ -11,7 +11,7 @@
   time.hardwareClockInLocalTime = true;
   imports = [
     # Include the results of the hardware scan.
-    ./hardware-configuration.nix
+    /etc/nixos/hardware-configuration.nix
   ];
   i18n.inputMethod.enabled = "fcitx";
   i18n.inputMethod.fcitx.engines = with pkgs.fcitx-engines; [rime];
@@ -20,6 +20,11 @@
     fonts = with pkgs; [
       noto-fonts-cjk
       noto-fonts-emoji
+      (nerdfonts.override {
+        fonts = [
+          "Iosevka"
+        ];
+      })
     ];
   };
   # Use the systemd-boot EFI boot loader.
@@ -62,7 +67,19 @@
   # List packages installed in system profile. To search, run:
   # $ nix search wget
   environment.systemPackages = with pkgs; [
+    # Util
     exa
+    dolphin
+    wpa_supplicant
+    # Dev
+    go
+    yarn
+    nodejs
+    python310
+    qt6.qtbase
+    qt6.qttools
+    qt6.qtdoc
+
     wget
     firefox-wayland
     v2ray
@@ -71,10 +88,6 @@
     glow
     bat
     fd
-    python310
-    qt6.qtbase
-    qt6.qttools
-    qt6.qtdoc
     git
     lazygit
     zoxide
@@ -92,7 +105,6 @@
     greetd.greetd
     greetd.tuigreet
     rnix-lsp
-    wezterm
   ];
   virtualisation.libvirtd.enable = true;
   programs.dconf.enable = true;

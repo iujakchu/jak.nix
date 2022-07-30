@@ -7,9 +7,12 @@
       url = "github:hyprwm/Hyprland";
       inputs.nixpkgs.follows = "nixpkgs";
     };
-    neovim-nightly-overlay= { url = "github:nix-community/neovim-nightly-overlay";inputs.nixpkgs.follows = "nixpkgs"; };
+    neovim-nightly-overlay = {
+      url = "github:nix-community/neovim-nightly-overlay";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
     home-manager.url = "github:nix-community/home-manager";
-    home-manager.inputs.nixpkgs.follows = "nixpkgs";    
+    home-manager.inputs.nixpkgs.follows = "nixpkgs";
   };
   outputs = {
     self,
@@ -30,11 +33,11 @@
       art = lib.nixosSystem {
         inherit system;
         modules = [
-	{nixpkgs.overlays = [ neovim-nightly-overlay.overlay ];}
+          {nixpkgs.overlays = [neovim-nightly-overlay.overlay];}
           hyprland.nixosModules.default
           {programs.hyprland.enable = true;}
           ./configuration.nix
-	  home-manager.nixosModules.home-manager
+          home-manager.nixosModules.home-manager
           {
             home-manager.useGlobalPkgs = true;
             home-manager.useUserPackages = true;
